@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carro autônomo</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    <div id="verticalButtons">
+        <button id="play_btn">▶</button>
+        <button id="reset_btn">🔁</button>
+        <button id="save_btn">💾</button>
+        <button id="discard_btn">🗑️</button>
+        <button id="brain_btn">🧠</button>
+        <button id="config_btn">⚙</button>
+    </div>
+    <dialog id="config_dialog">
+        <form method="dialog">
+            <p>
+              <label>Nº Carros
+                <input name="carCount" type="number" min="1" max="5000" step="1" value="1">
+              </label>
+            </p>
+            <p>
+                <label>Nº Sensores
+                    <input name="carSensorCount" type="number" min="1" max="15" step="1" value="5">
+                </label>
+            </p>
+            <p>
+                <label>Distância entre Sensores
+                    <input name="carSensorGap" type="range" min="1" max="6" step="1" value="4">
+                </label>
+            </p>
+            <p>
+                <label>Nº Faixas
+                    <input name="laneCount" type="number" min="1" max="10" step="1" value="5">
+                </label>
+            </p>
+            <p>
+                <label>Densidade do tráfego
+                    <input name="trafficCount" type="range" min="1" max="100" step="1" value="15">
+                </label>
+            </p>
+            <div>
+              <button value="cancel">Cancelar</button>
+              <button id="confirmBtn" value="default">Confirmar</button>
+            </div>
+          </form>
+    </dialog>
+    <canvas id="visualizer"></canvas>
+    <script src="utils.js"></script>
+    <script src="visualizer.js"></script>
+    <script src="network.js"></script>
+    <script src="sensor.js"></script>
+    <script src="controls.js"></script>
+    <script src="road.js"></script>
+    <script src="car.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
