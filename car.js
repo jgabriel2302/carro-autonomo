@@ -47,6 +47,10 @@ class Car {
         }
     }
 
+    setDemageState(state = false){
+        this.damaged = state;
+    }
+
     #assessDamage(roadBorders = [], traffic = []){
         for(let i=0;i<roadBorders.length;i++){
             if(polysIntersect(this.polygon,roadBorders[i])){

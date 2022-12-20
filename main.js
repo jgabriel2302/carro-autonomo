@@ -43,7 +43,10 @@
         carSensorGap: 4,
         laneCount: 3,
         trafficCount: 7,
+        selfTraining: 0
     }
+
+    let showUpdates = true
 
     function config(carCount = 1, laneCount = 3, trafficCount = 7, carSensorCount = 5, sensorGap = 2){
         if(isPlaying) return;
@@ -54,7 +57,28 @@
         visualizer.width = Math.min(window.innerWidth - canvas.width - margin, window.innerWidth / 2);
 
         road = new Road(canvas.width/2,canvas.width*0.9, laneCount);
-        traffic = new Array(trafficCount).fill(0).map(x=>new Car(road.getLaneCenter(rand(0, laneCount - 1)), rand(-canvas.height * trafficCount, canvas.height / 2), CAR_MAX_WIDTH, CAR_MAX_HEIGHT, Controls.controlTypes.DUMMY, rand(1, 8), "#"+randArray(TRAFFIC_COLOR)))
+        traffic = new Array(trafficCount).fill(0).map(x=>
+            Math.random() > 0.5?
+            new Car(
+                road.getLaneCenter(rand(0, laneCount - 1)),
+                rand(-canvas.height * trafficCount, canvas.height / 2),
+                CAR_MAX_WIDTH,
+                CAR_MAX_HEIGHT,
+                Controls.controlTypes.DUMMY,
+                rand(1, 8),
+                "#"+randArray(TRAFFIC_COLOR)
+            ):
+            new SimulationObject(
+                road.getLaneCenter(rand(0, laneCount - 1)),
+                rand(-canvas.height * trafficCount, canvas.height / 2),
+                rand(CAR_MAX_WIDTH / 2, CAR_MAX_WIDTH),
+                rand(CAR_MAX_WIDTH / 2, CAR_MAX_WIDTH),
+                randArray(["#444", "#777", "#aaa"])
+            )
+        )
+        
+        traffic.push()
+        
         cars = generateCars(carCount, laneCount, carSensorCount, sensorGap);
         bestCar = cars[0];
         if(localStorage.getItem("bestBrain")){
@@ -81,22 +105,40 @@
     function generateCars(N = 1, laneCount = 3, carSensorCount = 5, sensorGap = 2){
         const cars=[];
         for(let i=1;i<=N;i++){
-            cars.push(new Car(road.getLaneCenter(rand(0, laneCount - 1)), 100, CAR_MAX_WIDTH, CAR_MAX_HEIGHT, Controls.controlTypes.AI, 10, CAR_COLOR, carSensorCount, sensorGap));
+            cars.push(new Car(
+                //road.getLaneCenter(rand(0, laneCount - 1)), 
+                road.getLaneCenter(Math.floor(laneCount / 2)),
+                100,
+                CAR_MAX_WIDTH,
+                CAR_MAX_HEIGHT,
+                Controls.controlTypes.AI,
+                10,
+                CAR_COLOR,
+                carSensorCount,
+                sensorGap)
+            );
         }
         return cars;
     }
 
     function animate(time){
-        for(let i=0;i<traffic.length;i++){
-            traffic[i].update(road.borders, []);
+        const nearTraffic = traffic.filter(c=>( Math.abs(c.y) - Math.abs(bestCar.y) ) < canvas.height * 2);
+
+        for(let i=0;i<nearTraffic.length;i++){
+            nearTraffic[i].update(road.borders, []);
         }
 
         for(let i=0;i<cars.length;i++){
             if(!cars[i].damaged)
-                cars[i].update(road.borders,traffic);
+                cars[i].update(road.borders,nearTraffic);
         }
 
         bestCar = cars.find(
+            c=>c.y==Math.min(
+                ...cars.map(c=>c.y)
+            ) && !c.damaged);
+
+        if(bestCar===undefined) bestCar = cars.find(
             c=>c.y==Math.min(
                 ...cars.map(c=>c.y)
             ));
@@ -107,19 +149,25 @@
         ctx.save();
         ctx.translate(0, -bestCar.y + canvas.height/1.5);
 
-        road.draw(ctx);
+        if(showUpdates) road.draw(ctx);
 
-        for(let i=0;i<traffic.length;i++){
-            traffic[i].draw(ctx);
+        for(let i=0;i<nearTraffic.length;i++){
+            if(showUpdates) nearTraffic[i].draw(ctx);
         }
 
         ctx.globalAlpha=0.2;
         for(let i=0;i<cars.length;i++){
-            if(!cars[i].damaged)
+            if(( Math.abs(cars[i].y) - Math.abs(bestCar.y) ) > canvas.height  && !cars[i].damaged) {
+                cars[i].setDemageState(true);
+            }
+
+            if(!cars[i].damaged && showUpdates)
                 cars[i].draw(ctx);
+            
         }
+
         ctx.globalAlpha=1;
-        bestCar.draw(ctx, true);
+        if(showUpdates) bestCar.draw(ctx, true);
 
         ctx.restore();
 
@@ -129,10 +177,20 @@
 
         visualizer_ctx.lineDashOffset=-time/50;
 
-        Visualizer.drawNetwork(visualizer_ctx, bestCar.brain);
+        if(showUpdates) Visualizer.drawNetwork(visualizer_ctx, bestCar.brain);
 
         if(isPlaying)
             requestAnimationFrame(animate)
+
+        if(!cars.some(x=>x.damaged===false)) {
+            pause();
+            showUpdates = true;
+            if(configOptions.selfTraining === 1) {
+                save();
+                reset();
+                play();
+            }
+        }
     }
 
     function play(){
@@ -155,10 +213,12 @@
     }
 
     function reset(){
+        const wasPlayingBefore = isPlaying? true: false;
         isPlaying = false;
         isSetted = false;
         play_btn.innerHTML = "▶"
         updateConfig();
+        if(wasPlayingBefore) play();
     }
 
     function updateConfig(){

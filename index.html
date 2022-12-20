@@ -61,7 +61,15 @@
             </p>
             <p>
                 <label>Densidade do tráfego
-                    <input name="trafficCount" type="range" min="1" max="100" step="1" value="15">
+                    <input name="trafficCount" type="range" min="15" max="1000" step="1" value="15">
+                </label>
+            </p>
+            <p>
+                <label>Treinar sozinho
+                    <select name="selfTraining">
+                        <option value="0">Não</option>
+                        <option value="1">Sim</option>
+                    </select>
                 </label>
             </p>
             <div>
@@ -80,6 +88,7 @@
     <script src="sensor.js"></script>
     <script src="controls.js"></script>
     <script src="road.js"></script>
+    <script src="object.js"></script>
     <script src="car.js"></script>
     <script src="main.js"></script>
 </body>
