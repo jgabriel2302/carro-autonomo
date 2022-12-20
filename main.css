@@ -50,6 +50,19 @@ dialog#config_dialog {
     border-radius: 5px;
 }
 
+#car_counter {
+    position: absolute;
+    top: 0;
+    left: 0;
+    padding: 5px 15px;
+    color: #fff;
+    background-color: #000;
+    border-radius: 5px;
+    margin: 2px 50%;
+    box-shadow: 0 0 rgb(255 255 255 / 30%);
+    z-index: 1;
+}
+
 input:not([type="range"]) {
     width: calc(100% - 30px);
     border: none;

@@ -17,6 +17,7 @@
     const brain_btn = document.getElementById("brain_btn")
     const config_btn = document.getElementById("config_btn")
     const config_dialog = document.getElementById("config_dialog")
+    const car_counter = document.getElementById("car_counter")
 
     const margin = 10;
     const canvas = document.getElementById('canvas');
@@ -55,6 +56,8 @@
         CANVAS_WIDTH = LANE_WIDTH * laneCount;
         canvas.width = CANVAS_WIDTH;
         visualizer.width = Math.min(window.innerWidth - canvas.width - margin, window.innerWidth / 2);
+
+        car_counter.style.backgroundColor = CAR_COLOR;
 
         road = new Road(canvas.width/2,canvas.width*0.9, laneCount);
         traffic = new Array(trafficCount).fill(0).map(x=>
@@ -123,14 +126,17 @@
 
     function animate(time){
         const nearTraffic = traffic.filter(c=>( Math.abs(c.y) - Math.abs(bestCar.y) ) < canvas.height * 2);
+        let count = 0;
 
         for(let i=0;i<nearTraffic.length;i++){
             nearTraffic[i].update(road.borders, []);
         }
 
         for(let i=0;i<cars.length;i++){
-            if(!cars[i].damaged)
+            if(!cars[i].damaged){
                 cars[i].update(road.borders,nearTraffic);
+                count++
+            }
         }
 
         bestCar = cars.find(
@@ -182,7 +188,8 @@
         if(isPlaying)
             requestAnimationFrame(animate)
 
-        if(!cars.some(x=>x.damaged===false)) {
+        if(car_counter.innerHTML !== `${count}/${configOptions.carCount}`)car_counter.innerHTML = `${count}/${configOptions.carCount}`
+        if(count===0) {
             pause();
             showUpdates = true;
             if(configOptions.selfTraining === 1) {
