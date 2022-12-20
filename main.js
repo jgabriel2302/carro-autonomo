@@ -74,7 +74,7 @@
             new SimulationObject(
                 road.getLaneCenter(rand(0, laneCount - 1)),
                 rand(-canvas.height * trafficCount, canvas.height / 2),
-                rand(CAR_MAX_WIDTH / 2, CAR_MAX_WIDTH),
+                rand(CAR_MAX_WIDTH / 2, LANE_WIDTH * laneCount / 2),
                 rand(CAR_MAX_WIDTH / 2, CAR_MAX_WIDTH),
                 randArray(["#444", "#777", "#aaa"])
             )
@@ -163,7 +163,7 @@
 
         ctx.globalAlpha=0.2;
         for(let i=0;i<cars.length;i++){
-            if(( Math.abs(cars[i].y) - Math.abs(bestCar.y) ) > canvas.height  && !cars[i].damaged) {
+            if(( Math.abs(cars[i].y) - Math.abs(bestCar.y) ) < -canvas.height/1.5 && !cars[i].damaged) {
                 cars[i].setDemageState(true);
             }
 

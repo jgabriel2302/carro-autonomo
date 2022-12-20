@@ -24,7 +24,7 @@ class Car {
         if(controlType !== Controls.controlTypes.DUMMY){
             this.sensor = new Sensor(this, sensorCount, sensorGap);
             this.brain=new NeuralNetwork(
-                [this.sensor.rayCount, 6, 4]
+                [this.sensor.rayCount, 12, 6, 4]
             );
         }
         this.maxSpeed = maxSpeed;
@@ -96,7 +96,7 @@ class Car {
             this.speed -= this.acceleration;
         
         if(this.speed > this.maxSpeed) this.speed = this.maxSpeed;
-        if(this.speed < -this.maxSpeed/4) this.speed = -this.maxSpeed/4;
+        if(this.speed < -this.maxSpeed/2) this.speed = -this.maxSpeed/2;
 
         if(this.speed > 0) this.speed -= this.friction;
         if(this.speed < 0) this.speed += this.friction;
